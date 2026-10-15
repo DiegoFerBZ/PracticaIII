@@ -17,7 +17,7 @@
 
 ### 1.1 Flujo actual (línea base)
 
-::: mermaid
+``` mermaid
 flowchart TD
     A["Invocador"] --> B["Contabilidad<br/>valida auditoría del job"]
     B --> C["Lee parámetros del día<br/>y eventos de origen"]
@@ -32,7 +32,7 @@ flowchart TD
 
     classDef seq fill:#fde2e2,stroke:#c0392b,color:#000
     class E,F,G,H,I,J seq
-:::
+```
 
 Los nodos en rojo son los puntos de procesamiento secuencial o de barrera (detalle en 1.2).
 
@@ -91,7 +91,7 @@ Los nodos en rojo son los puntos de procesamiento secuencial o de barrera (detal
 
 ### 2.2 Vista de conjunto
 
-::: mermaid
+``` mermaid
 flowchart LR
     subgraph CONT["Contabilidad  PRODUCTOR"]
         direction LR
@@ -118,7 +118,7 @@ flowchart LR
     classDef cpu fill:#eaf7ea,stroke:#2e8b57,color:#000
     class F1 io
     class F2 cpu
-:::
+```
 
 Los canales entre fases (acotados, con espera cuando están llenos) son los que transmiten la presión hacia atrás: si los workers del Core se saturan, el stream HTTP se frena, el consumidor final deja de leer, y cada fase anterior queda bloqueada en su escritura hasta que haya espacio.
 
@@ -141,7 +141,7 @@ Los canales entre fases (acotados, con espera cuando están llenos) son los que 
 
 Todos los procesos son una combinación de las mismas piezas. Se distinguen tres formas según qué datos externos necesitan por cuenta:
 
-::: mermaid
+``` mermaid
 flowchart LR
     subgraph VA["Variante A  sin consulta externa"]
         direction LR
@@ -155,7 +155,7 @@ flowchart LR
         direction LR
         C0["Lotes de cuentas"] --> C1["Saldos por lote<br/>filtra suficientes"] --> C2["Información de cuenta<br/>por lote, 1 a N"] --> C3["Armar<br/>por cuenta"] --> CS["Stream"]
     end
-:::
+```
 
 ---
 
@@ -197,7 +197,7 @@ Hay **dos consumidores encadenados**: el consumidor final del pipeline de Contab
 
 ### 4.2 Consumidor en el Core: procesamiento concurrente por worker
 
-::: mermaid
+``` mermaid
 flowchart TD
     R["Endpoint del proceso<br/>lee el cuerpo como stream"] --> S["Servicio del proceso<br/>procesador concurrente"]
     S --> BM["Consumidor único<br/>escribe en canal acotado"]
@@ -219,7 +219,7 @@ flowchart TD
 
     W --> U
     W --> FIN["Al terminar todos:<br/>si hay fallidos lanza error de negocio<br/>si no responde éxito"]
-:::
+```
 
 
 ---
@@ -228,7 +228,7 @@ flowchart TD
 
 ### 5.1 Mapa de servicios
 
-::: mermaid
+``` mermaid
 flowchart LR
     INV["Invocador"] -- "dispara el proceso" --> CONT["Contabilidad"]
     CONT -- "SQL directo<br/>parámetros, eventos,<br/>auditoría del job" --> DBC[("BD de Contabilidad")]
@@ -236,7 +236,7 @@ flowchart LR
     CONT == "HTTP streaming<br/>transacciones" ==> CORE
     CORE -- "SQL<br/>movimientos, saldos,<br/>auditoría de eventos" --> DBK[("BD del Core")]
     CONT -- "logs y<br/>notificaciones" --> LOGS["Servicio de trazabilidad"]
-:::
+```
 
 
 ---
